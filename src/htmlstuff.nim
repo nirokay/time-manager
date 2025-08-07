@@ -1,5 +1,6 @@
 import std/[strutils, strformat]
 import cattag
+import cssstuff
 
 const
     days: array[7, string] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -17,36 +18,49 @@ proc day(name: string): HtmlElement =
         idStart: string = idDayStart(name)
         idEnd: string = idDayEnd(name)
 
-    result = section(
-        h3(html name),
-        p(html &"Times for {name}.\nIf you are not free on this day, skip this. Remember to use <strong>24h timeformat</strong>!"),
-        section(
-            label(@["for" <=> idStart], html"Start time:"),
-            input(@["type" <=> "time", "id" <=> idStart]),
-        ),
-        section(
-            label(@["for" <=> idEnd], html"End time:"),
-            input(@["type" <=> "time", "id" <=> idEnd]),
+    result = `div`(
+        details(false,
+            summary(html name),
+            p(
+                html &"Times for {name}.",
+                br(),
+                html "Remember to use",
+                strong(html"24h timeformat!")
+            ),
+            section(
+                label(@["for" <=> idStart], html"Start time:"),
+                input(@["type" <=> "time", "id" <=> idStart]),
+            ),
+            section(
+                label(@["for" <=> idEnd], html"End time:"),
+                input(@["type" <=> "time", "id" <=> idEnd]),
+            )
         )
-    )
+    ).setClass(classDayDiv.selector)
 
 proc getHtmlIndex(): HtmlDocument =
     result = newHtmlDocument("index.html")
     result.addToHead(
-        title(html"Time Manager")
+        title(html"Time Manager"),
+        style(html stylesheet)
     )
     result.add(
         h1(html"Time Manager"),
-        section(
-            label(@["for" <=> idUsername], html"Your username:"),
-            input(@["type" <=> "text", "id" <=> idUsername, "placeholder" <=> "Your name"]),
-        ),
-        section(
-            label(@["for" <=> idTimezone], html"Your timezone (UTC offset):"),
-            input(@["type" <=> "number", "id" <=> idTimezone, "placeholder" <=> "+2"])
-        )
+        h2(html"Personal details and Timezone"),
+        `div`(
+            section(
+                label(@["for" <=> idUsername], html"Your username:"),
+                input(@["type" <=> "text", "id" <=> idUsername, "placeholder" <=> "Your name"]),
+            ),
+            section(
+                label(@["for" <=> idTimezone], html"Your timezone (UTC offset):"),
+                input(@["type" <=> "number", "id" <=> idTimezone, "placeholder" <=> "+2"])
+            )
+        ).setClass(classDayDiv.selector)
     )
 
+    result.add h2(html"Days")
+    result.add p(html"If you are not free on the day, skip it.")
     for d in days:
         result.add day(d)
 

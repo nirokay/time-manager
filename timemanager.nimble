@@ -11,4 +11,4 @@ bin           = @["server"]
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "https://github.com/nirokay/CatTag", "https://github.com/nirokay/db_connector"
+requires "https://github.com/nirokay/CatTag == 0.1.1", "https://github.com/nirokay/db_connector"
