@@ -1,12 +1,20 @@
-import std/[strutils, strformat]
+import std/[os, strformat]
 import cattag
 import cssstuff
+
+proc embedJS(document: var HtmlDocument, file: string) =
+    let
+        path: string = "docs" / "javascript" / file & ".js"
+        content: string = path.readFile()
+    document.addToHead(script(true, content))
 
 const
     days: array[7, string] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     idUsername: string = "id-input-username"
     idPrefixDay: string = "id-day-"
     idTimeZone: string = "id-timezone"
+
+    idValidateZone: string = "id-validate-zone"
 
 proc idDay(str: string): string = idPrefixDay & str
 proc idDayAvailable(str: string): string = idPrefixDay & str & "-available"
@@ -40,6 +48,7 @@ proc day(name: string): HtmlElement =
 
 proc getHtmlIndex(): HtmlDocument =
     result = newHtmlDocument("index.html")
+    result.embedJS("index")
     result.addToHead(
         title(html"Time Manager"),
         style(html stylesheet)
@@ -63,9 +72,19 @@ proc getHtmlIndex(): HtmlDocument =
     result.add p(html"If you are not free on the day, skip it.")
     for d in days:
         result.add day(d)
+    result.add button("button", html"Validate input").add("onclick" <=> "handleSubmitValidate()")
+
+    result.add(
+        section(
+            h2(html"Validate your inputs"),
+            `div`(html"none").setClass(classDayDiv.selector).setId(idValidateZone),
+            button("button", html"Send away!").add("onclick" <=> "handleSubmitSend()")
+        ).setId(idValidateSection)
+    )
 
 
 const
     htmlPageIndex*: string = $getHtmlIndex()
 
-writeFile("index.html", htmlPageIndex)
+when not defined release:
+    writeFile("index.html", htmlPageIndex)

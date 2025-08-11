@@ -1,6 +1,8 @@
 import std/[strformat]
 import cattag
 
+const idValidateSection*: string = "section-validate"
+
 const
     # Variables:
     colBackgroundDark*: string = "#171921"
@@ -52,6 +54,23 @@ proc getStyles(): CssStylesheet =
             padding := 5'px,
             margin := 10'px
         },
+        "button"{
+            dropShadow,
+            propRounded,
+            borderStyle := CssLineStyle.none,
+            backgroundColor := colBackgroundLight,
+            color := colForegroundLight,
+            padding := 5'px,
+            margin := 10'px
+        },
+        "button:hover"{
+            backgroundColor := colBackgroundMiddle,
+            textDecoration := "underline"
+        },
+
+        newCssId(idValidateSection,
+            display := CssDisplayBox.none
+        ),
 
         classDayDiv
     )
