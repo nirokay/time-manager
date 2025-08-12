@@ -99,6 +99,7 @@ proc getHtml404(): HtmlDocument =
 
 proc getHtmlSuccess(): HtmlDocument =
     result = newHtmlDocument("success.html")
+    result.embedJS("success")
     result.addToHead(
         title(html"Success - Time Manager"),
         style(html stylesheet)
