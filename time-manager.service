@@ -1,0 +1,13 @@
+[Unit]
+Description=TimeManager WebServer
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/root/Git/time-manager/startServer.sh
+TimeoutSec=infinity
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
