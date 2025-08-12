@@ -130,13 +130,43 @@ proc getHtmlFailure(reason: varargs[HtmlElement]): HtmlDocument =
     )
     result.add(reasonElements)
 
+proc getHtmlException(error, message: string): HtmlDocument =
+    result = newHtmlDocument("exception.html")
+    result.addToHead(
+        title(html"500 - Time Manager"),
+        style(html stylesheet)
+    )
+    result.add(
+        h1(html"500: Server error!"),
+        p(
+            html"The server encountered an exception:",
+            pre(html error),
+            br(),
+            html message
+        )
+    )
+
+proc getHtmlNotImplemented(): HtmlDocument =
+    result = newHtmlDocument("not-implemented.html")
+    result.addToHead(
+        title(html"501 - Time Manager"),
+        style(html stylesheet)
+    )
+    result.add(
+        h1(html"501: Not implemented!"),
+        p(
+            html"This functionality is not yet implemented."
+        )
+    )
+
 const
     htmlPageIndex*: string = $getHtmlIndex()
     htmlPage404*: string = $getHtml404()
 
+    htmlPageNotImplemented*: string = $getHtmlNotImplemented()
     htmlPageSuccess*: string = $getHtmlSuccess()
 proc htmlPageFailure*(reason: varargs[HtmlElement]): string {.gcsafe.} = $getHtmlFailure(reason)
-
+proc htmlPageException*(error: cstring, message: string): string {.gcsafe.} = $getHtmlException($error, message)
 
 when not defined release:
     getHtmlIndex().writeFile()

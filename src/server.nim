@@ -5,35 +5,50 @@ const port* {.intdefine.} = 42069
 
 proc handleRequest(request: Request) {.async, gcsafe.} =
     let
+        headers = {"Content-type": "text/html; charset=utf-8"}
         url = request.url
         urlParts: seq[string] = block:
             let r: seq[string] = url.path.split("/")
             r[1 .. ^1]
         page: string = urlParts[0]
 
-    let response: ServerResponse = block:
-        if page in ["", "index", "index.html"]:
-            # Index:
-            ServerResponse(
-                code: Http200,
-                content: htmlPageIndex
-            )
-        elif page in ["submit"]:
-            # Submit:
-            let
-                payload: string = block:
-                    if urlParts.len() < 2: ""
-                    else: urlParts[1]
-                response: ServerResponse = handlePayloadSubmission(payload)
-            response
-        else:
-            # Generic 404:
-            ServerResponse(
-                code: Http404,
-                content: htmlPage404
-            )
+    var response: ServerResponse = ServerResponse(
+        code: Http501,
+        content: htmlPageNotImplemented
+    )
+    try:
+        response = block:
+            if page in ["", "index", "index.html"]:
+                # Index:
+                ServerResponse(
+                    code: Http200,
+                    content: htmlPageIndex
+                )
+            elif page in ["submit"]:
+                # Submit:
+                let
+                    payload: string = block:
+                        if urlParts.len() < 2: ""
+                        else: urlParts[1]
+                    response: ServerResponse = handlePayloadSubmission(payload)
+                response
+            else:
+                # Generic 404:
+                ServerResponse(
+                    code: Http404,
+                    content: htmlPage404
+                )
+    except CatchableError as e:
+        response = ServerResponse(
+            code: Http500,
+            content: htmlPageException(e.name, e.msg)
+        )
+    except Defect as e:
+        response = ServerResponse(
+            code: Http500,
+            content: htmlPageException(e.name, e.msg)
+        )
 
-    let headers = {"Content-type": "text/html; charset=utf-8"}
     await request.respond(response.code, response.content, headers.newHttpHeaders())
 
 proc runServer() {.async.} =
