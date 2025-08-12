@@ -2,6 +2,19 @@ import std/[os, strformat, sequtils]
 import cattag
 import cssstuff
 
+proc newPage(fileName, tabTitle, description: string): HtmlDocument =
+    let desc: string = "TimeManager lets you submit the time-frame when you are free."
+    result = newHtmlDocument(fileName)
+    result.addToHead(
+        title(html tabTitle),
+        meta(@["property" <=> "og:title", "content" <=> tabTitle]),
+        meta(@["name" <=> "description", "content" <=> desc]),
+        meta(@["property" <=> "og:description", "content" <=> description]),
+        meta("utf-8"),
+        meta(@["content" <=> "width=device-width, initial-scale=1", "name" <=> "viewport"]),
+        style(html stylesheet)
+    )
+
 proc embedJS(document: var HtmlDocument, file: string) =
     let
         path: string = "docs" / "javascript" / file & ".js"
@@ -33,7 +46,8 @@ proc day(name: string): HtmlElement =
                 html &"Times for {name}.",
                 br(),
                 html "Remember to use",
-                strong(html"24h timeformat!")
+                strong(html"24h timeformat!"),
+                html "Use your time, NOT UTC!"
             ),
             section(
                 label(@["for" <=> idStart], html"Start time:"),

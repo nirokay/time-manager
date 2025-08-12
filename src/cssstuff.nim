@@ -36,7 +36,9 @@ proc getStyles(): CssStylesheet =
     result.add(
         "html"{
             backgroundColor := colBackgroundDark,
-            color := colForegroundLight
+            color := colForegroundLight,
+            fontFamily := "Verdana, Geneva, Tahoma, sans-serif",
+            fontSize := 1.2'em
         },
         "details"{
             margin := 20'px
