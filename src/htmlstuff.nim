@@ -45,9 +45,8 @@ proc day(name: string): HtmlElement =
             p(
                 html &"Times for {name}.",
                 br(),
-                html "Remember to use",
-                strong(html"24h timeformat!"),
-                html "Use your time, NOT UTC!"
+                html "Remember to use 24h time format or explicitly set AM/PM if the option is available for you.",
+                html "Use your time, <string>NOT UTC</strong>!"
             ),
             section(
                 label(@["for" <=> idStart], html"Start time:"),
