@@ -140,6 +140,7 @@ function handleSubmitSend() {
     if (result == null)
         return;
     let jsonRepr = JSON.stringify(result);
-    let base64 = btoa(jsonRepr);
+    let encoded = encodeURI(jsonRepr);
+    let base64 = btoa(encoded);
     window.location.href = "submit/" + base64;
 }

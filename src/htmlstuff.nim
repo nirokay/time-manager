@@ -1,4 +1,4 @@
-import std/[os, strformat]
+import std/[os, strformat, sequtils]
 import cattag
 import cssstuff
 
@@ -82,9 +82,62 @@ proc getHtmlIndex(): HtmlDocument =
         ).setId(idValidateSection)
     )
 
+proc getHtml404(): HtmlDocument =
+    result = newHtmlDocument("404.html")
+    result.addToHead(
+        title(html"404 - Time Manager"),
+        style(html stylesheet)
+    )
+    result.add(
+        h1(html"404: Not found"),
+        p(
+            html"The page you requested does not exist :/",
+            br(),
+            a("/", "Click me to return to the main page!")
+        )
+    )
+
+proc getHtmlSuccess(): HtmlDocument =
+    result = newHtmlDocument("success.html")
+    result.addToHead(
+        title(html"Success - Time Manager"),
+        style(html stylesheet)
+    )
+    result.add(
+        h1(html"Request successful!"),
+        p(
+            html"Thank you, your input is received and saved.",
+            br(),
+            html"You may now close this page :)"
+        )
+    )
+
+proc getHtmlFailure(reason: varargs[HtmlElement]): HtmlDocument =
+    let reasonElements: seq[HtmlElement] = block:
+        let r: seq[HtmlElement] = reason.toSeq()
+
+        if r.len() == 0: @[p(html"Unspecified error.")]
+        else: r
+
+    result = newHtmlDocument("failure.html")
+    result.addToHead(
+        title(html"Failure - Time Manager"),
+        style(html stylesheet)
+    )
+    result.add(
+        h1(html"Request failed!"),
+        p(html"Your request has failed with reason:")
+    )
+    result.add(reasonElements)
 
 const
     htmlPageIndex*: string = $getHtmlIndex()
+    htmlPage404*: string = $getHtml404()
+
+    htmlPageSuccess*: string = $getHtmlSuccess()
+proc htmlPageFailure*(reason: varargs[HtmlElement]): string {.gcsafe.} = $getHtmlFailure(reason)
+
 
 when not defined release:
-    writeFile("index.html", htmlPageIndex)
+    getHtmlIndex().writeFile()
+    getHtml404().writeFile()

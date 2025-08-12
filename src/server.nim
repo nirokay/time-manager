@@ -1,9 +1,9 @@
 import std/[asynchttpserver, asyncdispatch, strutils]
-import typedefs, htmlstuff
+import typedefs, htmlstuff, database
 
 const port* {.intdefine.} = 42069
 
-proc handleRequest(request: Request) {.async.} =
+proc handleRequest(request: Request) {.async, gcsafe.} =
     let
         url = request.url
         urlParts: seq[string] = block:
@@ -11,25 +11,33 @@ proc handleRequest(request: Request) {.async.} =
             r[1 .. ^1]
         page: string = urlParts[0]
 
-
-    echo urlParts
-
     let response: ServerResponse = block:
         if page in ["", "index", "index.html"]:
+            # Index:
             ServerResponse(
                 code: Http200,
                 content: htmlPageIndex
             )
+        elif page in ["submit"]:
+            # Submit:
+            let
+                payload: string = block:
+                    if urlParts.len() < 2: ""
+                    else: urlParts[1]
+                response: ServerResponse = handlePayloadSubmission(payload)
+            response
         else:
+            # Generic 404:
             ServerResponse(
                 code: Http404,
-                content: "404: Not found"
+                content: htmlPage404
             )
 
     let headers = {"Content-type": "text/html; charset=utf-8"}
     await request.respond(response.code, response.content, headers.newHttpHeaders())
 
 proc runServer() {.async.} =
+    echo "Running server..."
     var server: AsyncHttpServer = newAsyncHttpServer()
     server.listen(Port port)
 

@@ -8,7 +8,18 @@ srcDir        = "src"
 bin           = @["server"]
 
 
+# Tasks
+
+task compilerun, "Compiles TS and Nim and runs the server":
+    echo "Compiling TypeScript..."
+    exec "tsc"
+
+    echo "Compiling Nim..."
+    exec "nimble run"
+
+
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "https://github.com/nirokay/CatTag == 0.1.1", "https://github.com/nirokay/db_connector"
+requires "db_connector"
+requires "https://github.com/nirokay/CatTag == 0.1.2"
