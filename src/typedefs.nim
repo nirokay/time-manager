@@ -1,4 +1,4 @@
-import std/[asynchttpserver, asyncdispatch, strformat, tables, json, options, re]
+import std/[asynchttpserver, strformat, tables, json, options, re]
 type
     ServerResponse* = object
         code*: HttpCode
