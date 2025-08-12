@@ -29,7 +29,7 @@ proc fail(message: string): Result[UserInput] = Result[UserInput](
     result: none UserInput
 )
 
-const timeRegex: Regex = re"^\D\D:\D\D"
+# const timeRegex: Regex = re"^\d?[0-2]\d?[0-9]:\d?[0-5]\d?[0-9]$"
 proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for good error messages...
     if not json.fields.hasKey("username"): return fail("Field <pre>username</pre> does not exist.")
     if not json.fields.hasKey("timezone"): return fail("Field <pre>timezone</pre> does not exist.")
@@ -74,7 +74,7 @@ proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for g
 
         for i, time in [timeStart, timeEnd]:
             if time == "": continue
-            if not match(time, timeRegex):
+            if not match(time, re"^\d?[0-2]\d?[0-9]:\d?[0-5]\d?[0-9]$"):
                 return fail(&"Malformed data for day {day} in index {i}, time <pre>{time}</pre> does not match regex.")
 
         userInput.times[dayEnum] = [timeStart, timeEnd]
@@ -86,8 +86,12 @@ proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for g
     )
 
 proc parseUserInput*(payload: string): Result[UserInput] =
+    var json: JsonNode
     try:
-        let json: JsonNode = payload.parseJson()
-        result = json.parseUserInput()
+        json = payload.parseJson()
     except ValueError:
-        return fail("Unparsable JSON.")
+        return fail("Invalid JSON, failed to parse.")
+    try:
+        result = json.parseUserInput()
+    except CatchableError as e:
+        return fail(&"Internal error: {e.name} ({e.msg})")

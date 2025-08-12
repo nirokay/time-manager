@@ -1,4 +1,4 @@
-import std/[asynchttpserver, asyncdispatch, strutils, uri, base64]
+import std/[asynchttpserver, asyncdispatch, options, uri, base64, json]
 import db_connector/db_sqlite
 import cattag
 import typedefs, htmlstuff
@@ -29,13 +29,13 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
     let
         decodedUri: string = block:
             try:
-                payload.decodeUrl()
-            except CatchableError:
+                payload.decode()
+            except ValueError:
                 ""
         decoded: string = block:
             try:
-                decodedUri.decode()
-            except ValueError:
+                decodedUri.decodeUrl()
+            except CatchableError:
                 ""
     if unlikely decoded == "": return ServerResponse(
         code: Http400,
@@ -52,8 +52,18 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
         )
     )
 
-    let parseResult: Result[UserInput] = parseUserInput(payload)
+    let parseResult: Result[UserInput] = parseUserInput(decoded)
     if parseResult.error: return ServerResponse(
         code: Http400,
-        content: htmlPageFailure()
+        content: htmlPageFailure(
+            p(
+                html"JSON data seems to be invalid. Reason:",
+                html parseResult.message,
+                br(),
+                html"Parsed JSON:",
+                pre(html decoded)
+            )
+        )
     )
+
+    let userInput: UserInput = get parseResult.result

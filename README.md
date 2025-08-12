@@ -20,8 +20,9 @@ blown up!
 ### Compilation Dependency
 
 * **Nim** (Nim version >= 2.0.0), and the following libraries:
-  * *db_connector* (Database stuff)
-  * *CatTag* (HTML/CSS)
+  * nimble: *db_connector* (Database stuff)
+  * nimble: *CatTag* (HTML/CSS)
+  * external: *libpcre1* [OpenSUSE](https://software.opensuse.org/download/package?package=libpcre1&project=Base%3ASystem)
 * **TypeScript Compiler**
 
 ## License
