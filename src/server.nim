@@ -53,6 +53,7 @@ proc handleRequest(request: Request) {.async, gcsafe.} =
 
 proc runServer() {.async.} =
     echo "Running server..."
+    initDatabase()
     var server: AsyncHttpServer = newAsyncHttpServer()
     server.listen(Port port)
 

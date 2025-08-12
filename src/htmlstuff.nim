@@ -139,7 +139,7 @@ proc getHtmlException(error, message: string): HtmlDocument =
     result.add(
         h1(html"500: Server error!"),
         p(
-            html"The server encountered an exception:",
+            html"The server encountered an error:",
             pre(html error),
             br(),
             html message
@@ -166,8 +166,4 @@ const
     htmlPageNotImplemented*: string = $getHtmlNotImplemented()
     htmlPageSuccess*: string = $getHtmlSuccess()
 proc htmlPageFailure*(reason: varargs[HtmlElement]): string {.gcsafe.} = $getHtmlFailure(reason)
-proc htmlPageException*(error: cstring, message: string): string {.gcsafe.} = $getHtmlException($error, message)
-
-when not defined release:
-    getHtmlIndex().writeFile()
-    getHtml404().writeFile()
+proc htmlPageException*(error: string|cstring, message: string): string {.gcsafe.} = $getHtmlException($error, message)

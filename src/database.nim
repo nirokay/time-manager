@@ -1,4 +1,4 @@
-import std/[asynchttpserver, asyncdispatch, options, uri, base64, json]
+import std/[asynchttpserver, asyncdispatch, strformat, options, uri, base64, json, times, tables]
 import db_connector/db_sqlite
 import cattag
 import typedefs, htmlstuff
@@ -16,9 +16,73 @@ template withDatabase*(db: untyped, body: untyped): untyped =
         success = true
     except CatchableError as e:
         success = false
+        echo &"Database error '" & $e.name & "':\n -> " & e.msg
     finally:
         if success: db.exec(sql"COMMIT")
         db.close()
+
+proc initDatabase*() =
+    withDatabase db:
+        db.exec(sql"""
+            CREATE TABLE IF NOT EXISTS inputs (
+                timestamp INTEGER PRIMARY KEY UNIQUE NOT NULL,
+                username WORD NOT NULL,
+                timezone INTEGER NOT NULL DEFAULT 0,
+                monday WORD,
+                tuesday WORD,
+                wednesday WORD,
+                thursday WORD,
+                friday WORD,
+                saturday WORD,
+                sunday WORD
+            );
+        """)
+
+proc success(): (bool, string) = (true, "")
+proc failure(reason: string): (bool, string) = (false, reason)
+proc toDbRepr(times: array[2, string]): string =
+    let
+        timeStart: string = times[0]
+        timeEnd: string = times[1]
+    result = block:
+        if timeStart == "" and timeEnd == "": ""
+        else: &"{timeStart}-{timeEnd}"
+proc submitRequest(data: UserInput): (bool, string) =
+    let timestamp: int = int(epochTime() * 1000)
+    try:
+        var id: int = -1
+        withDatabase db:
+            id = db.tryInsert(
+                sql"""
+                    INSERT INTO inputs (
+                        timestamp,
+                        username,
+                        timezone,
+                        monday,
+                        tuesday,
+                        wednesday,
+                        thursday,
+                        friday,
+                        saturday,
+                        sunday
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                $timestamp,
+                timestamp,
+                data.username,
+                data.timezone,
+                data.times[Monday].toDbRepr(),
+                data.times[Tuesday].toDbRepr(),
+                data.times[Wednesday].toDbRepr(),
+                data.times[Thursday].toDbRepr(),
+                data.times[Friday].toDbRepr(),
+                data.times[Saturday].toDbRepr(),
+                data.times[Sunday].toDbRepr(),
+            )
+        if id == -1: return failure("Failed to insert into database.")
+        else: return success()
+    except DbError as e:
+        return failure(&"{e.name}: {e.msg}")
 
 
 proc handlePayloadSubmission*(payload: string): ServerResponse =
@@ -67,3 +131,19 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
     )
 
     let userInput: UserInput = get parseResult.result
+    try:
+        let (status, reason) = submitRequest(userInput)
+        if unlikely(not status):
+            return ServerResponse(
+                code: Http500,
+                content: htmlPageException("Database Problem", reason)
+            )
+    except CatchableError as e:
+        return ServerResponse(
+            code: Http500,
+            content: htmlPageException(e.name, e.msg)
+        )
+    result = ServerResponse(
+        code: Http200,
+        content: htmlPageSuccess
+    )

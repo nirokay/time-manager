@@ -29,7 +29,6 @@ proc fail(message: string): Result[UserInput] = Result[UserInput](
     result: none UserInput
 )
 
-# const timeRegex: Regex = re"^\d?[0-2]\d?[0-9]:\d?[0-5]\d?[0-9]$"
 proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for good error messages...
     if not json.fields.hasKey("username"): return fail("Field <pre>username</pre> does not exist.")
     if not json.fields.hasKey("timezone"): return fail("Field <pre>timezone</pre> does not exist.")
