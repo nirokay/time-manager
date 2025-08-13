@@ -30,6 +30,9 @@ const
         margin := 20'px,
         padding := 10'px
     )
+    classCenterText*: CssElement = newCssClass("centered-text",
+        textAlign := "center"
+    )
 
 proc getStyles(): CssStylesheet =
     result = newCssStylesheet("styles.css")
@@ -39,6 +42,22 @@ proc getStyles(): CssStylesheet =
             color := colForegroundLight,
             fontFamily := "Verdana, Geneva, Tahoma, sans-serif",
             fontSize := 1.2'em
+        },
+        "h1"{
+            textAlign := "center"
+        },
+        "h2"{
+            textAlign := "center"
+        },
+        "q"{
+            fontStyle := "italic"
+        },
+        "code, pre"{
+            dropShadow,
+            propRounded,
+            padding := 5'px,
+            margin := 10'px,
+            backgroundColor := "#15161A"
         },
         "details"{
             margin := 20'px
@@ -62,8 +81,9 @@ proc getStyles(): CssStylesheet =
             borderStyle := CssLineStyle.none,
             backgroundColor := colBackgroundLight,
             color := colForegroundLight,
-            padding := 5'px,
-            margin := 10'px
+            padding := 10'px,
+            margin := 20'px,
+            fontSize := 1.1'em
         },
         "button:hover"{
             backgroundColor := colBackgroundMiddle,
@@ -74,7 +94,8 @@ proc getStyles(): CssStylesheet =
             display := CssDisplayBox.none
         ),
 
-        classDayDiv
+        classDayDiv,
+        classCenterText
     )
 
 const stylesheet*: string = $getStyles()

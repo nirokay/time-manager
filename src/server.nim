@@ -24,6 +24,12 @@ proc handleRequest(request: Request) {.async, gcsafe.} =
                     code: Http200,
                     content: htmlPageIndex
                 )
+            elif page in ["results", "results.html"]:
+                # Results page:
+                ServerResponse(
+                    code: Http501,
+                    content: htmlPageNotImplemented
+                )
             elif page in ["submit"]:
                 # Submit:
                 let

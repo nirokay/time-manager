@@ -12,7 +12,11 @@ proc newPage(fileName, tabTitle, description: string): HtmlDocument =
         meta(@["property" <=> "og:description", "content" <=> description]),
         meta("utf-8"),
         meta(@["content" <=> "width=device-width, initial-scale=1", "name" <=> "viewport"]),
-        style(html stylesheet)
+        style(html stylesheet),
+        link().add(
+            "href" <=> "https://www.nirokay.com/styles.css",
+            "rel" <=> "stylesheet"
+        )
     )
 
 proc embedJS(document: var HtmlDocument, file: string) =
@@ -21,75 +25,8 @@ proc embedJS(document: var HtmlDocument, file: string) =
         content: string = path.readFile()
     document.addToHead(script(true, content))
 
-const
-    days: array[7, string] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    idUsername: string = "id-input-username"
-    idPrefixDay: string = "id-day-"
-    idTimeZone: string = "id-timezone"
 
-    idValidateZone: string = "id-validate-zone"
-
-proc idDay(str: string): string = idPrefixDay & str
-proc idDayAvailable(str: string): string = idPrefixDay & str & "-available"
-proc idDayStart(str: string): string = idPrefixDay & str & "-time-start"
-proc idDayEnd(str: string): string = idPrefixDay & str & "-time-end"
-
-proc day(name: string): HtmlElement =
-    let
-        idStart: string = idDayStart(name)
-        idEnd: string = idDayEnd(name)
-
-    result = `div`(
-        details(false,
-            summary(html name),
-            p(
-                html &"Times for {name}.",
-                br(),
-                html "Remember to use 24h time format or explicitly set AM/PM if the option is available for you.",
-                html "Use your time, <string>NOT UTC</strong>!"
-            ),
-            section(
-                label(@["for" <=> idStart], html"Start time:"),
-                input(@["type" <=> "time", "id" <=> idStart]),
-            ),
-            section(
-                label(@["for" <=> idEnd], html"End time:"),
-                input(@["type" <=> "time", "id" <=> idEnd]),
-            )
-        )
-    ).setClass(classDayDiv.selector)
-
-proc getHtmlIndex(): HtmlDocument =
-    result = newPage("index.html", "TimeManager", "TimeManager lets you coordinate free-times without worrying too much about timezones.")
-    result.add(
-        h1(html"Time Manager"),
-        h2(html"Personal details and Timezone"),
-        `div`(
-            section(
-                label(@["for" <=> idUsername], html"Your username:"),
-                input(@["type" <=> "text", "id" <=> idUsername, "placeholder" <=> "Your name"]),
-            ),
-            section(
-                label(@["for" <=> idTimezone], html"Your timezone (UTC offset):"),
-                input(@["type" <=> "number", "id" <=> idTimezone, "placeholder" <=> "+2"])
-            )
-        ).setClass(classDayDiv.selector)
-    )
-
-    result.add h2(html"Days")
-    result.add p(html"If you are not free on the day, skip it.")
-    for d in days:
-        result.add day(d)
-    result.add button("button", html"Validate input").add("onclick" <=> "handleSubmitValidate()")
-
-    result.add(
-        section(
-            h2(html"Validate your inputs"),
-            `div`(html"none").setClass(classDayDiv.selector).setId(idValidateZone),
-            button("button", html"Send away!").add("onclick" <=> "handleSubmitSend()")
-        ).setId(idValidateSection)
-    )
-
+# Successes and Failures: -----------------------------------------------------
 proc getHtml404(): HtmlDocument =
     result = newPage("404.html", "404 - TimeManager", "404 - Not found")
     result.add(
@@ -137,7 +74,7 @@ proc getHtmlException(error, message: string): HtmlDocument =
         h1(html"500: Server error!"),
         p(
             html"The server encountered an error:",
-            pre(html error),
+            code(html error),
             br(),
             html message
         )
@@ -154,6 +91,107 @@ proc getHtmlNotImplemented(): HtmlDocument =
         p(
             html"This functionality is not yet implemented."
         )
+    )
+
+
+# Index: ----------------------------------------------------------------------
+const
+    days: array[7, string] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    idUsername: string = "id-input-username"
+    idPrefixDay: string = "id-day-"
+    idTimeZone: string = "id-timezone"
+
+    idValidateZone: string = "id-validate-zone"
+
+proc idDayStart(str: string): string = idPrefixDay & str & "-time-start"
+proc idDayEnd(str: string): string = idPrefixDay & str & "-time-end"
+
+proc day(name: string): HtmlElement =
+    let
+        idStart: string = idDayStart(name)
+        idEnd: string = idDayEnd(name)
+
+    result = `div`(
+        details(true,
+            summary(html name),
+            p(
+                html &"Times for {name}.",
+                br(),
+                html "Remember to use 24h time format or explicitly set AM/PM if the option is available for you.",
+                html "Use your time, <string>NOT UTC</strong>!"
+            ),
+            section(
+                label(@["for" <=> idStart], html"Start time:"),
+                input(@["type" <=> "time", "id" <=> idStart]),
+            ),
+            section(
+                label(@["for" <=> idEnd], html"End time:"),
+                input(@["type" <=> "time", "id" <=> idEnd]),
+            )
+        )
+    ).setClass(classDayDiv.selector)
+
+proc getHtmlIndex(): HtmlDocument =
+    result = newPage("index.html", "TimeManager", "TimeManager lets you coordinate free-times without worrying too much about timezones.")
+    result.embedJS("index")
+    result.add(
+        h1(html"TimeManager"),
+        p(
+            html"Welcome to TimeManager! TimeManager lets you coordinate free-times without worrying too much about timezones.",
+            br(),
+            html"If you are here to submit your data,",
+            a("#new-submission", &"scroll down to <q>New submission</q> or click on this hyperlink"),
+            html"!"
+        ).setClass(classCenterText.selector)
+    )
+
+    # Navigate to results:
+    result.add(
+        h2(html"Results").setId("results"),
+        p(
+            a("/results", "Click here"),
+            html"to look at results!"
+        ).setClass(classCenterText.selector)
+    )
+
+    # New submission:
+    result.add(
+        h2(html"New submission").setId("new-submission"),
+        h3(html"Personal details and Timezone"),
+        `div`(
+            section(
+                label(@["for" <=> idUsername], html"Your username:"),
+                input(@["type" <=> "text", "id" <=> idUsername, "placeholder" <=> "Your name"]),
+            ),
+            section(
+                label(@["for" <=> idTimezone], html"Your timezone (UTC offset):"),
+                input(@["type" <=> "number", "id" <=> idTimezone, "placeholder" <=> "+2"])
+            )
+        ).setClass(classDayDiv.selector)
+    )
+
+    result.add h3(html"Days")
+    result.add p(html"If you are not free on the day, skip it.")
+    for d in days:
+        result.add day(d)
+    result.add button("button", html"Validate input").add("onclick" <=> "handleSubmitValidate()")
+
+    result.add(
+        section(
+            h3(html"Validate your inputs"),
+            `div`(html"none").setClass(classDayDiv.selector).setId(idValidateZone).setStyle(@[lineHeight := 2'em]),
+            p(
+                html"If you see <q>UNDEFINED</q> somewhere in one of the time sections, your submission will be rejected.",
+                br(),
+                html"Possible causes are: For the day, you ..."
+            ),
+            ul(
+                li(html"set the one time and forgot to set the other"),
+                li(html"forgot to set the minutes or hours"),
+                li(html"forgot to set AM/PM, if your browser is using 12h-format")
+            ),
+            button("button", html"Send away!").add("onclick" <=> "handleSubmitSend()")
+        ).setId(idValidateSection)
     )
 
 const

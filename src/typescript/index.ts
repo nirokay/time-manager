@@ -14,12 +14,6 @@ const idTimeZone: string = "id-timezone";
 const idValidateSection: string = "section-validate";
 const idValidateZone: string = "id-validate-zone";
 
-function idDay(str: string): string {
-    return idPrefixDay + str;
-}
-function idDayAvailable(str: string): string {
-    return idPrefixDay + str + "-available";
-}
 function idDayStart(str: string): string {
     return idPrefixDay + str + "-time-start";
 }
@@ -112,29 +106,34 @@ function timezoneFormat(offset: number): string {
 function stringifyInput(data: UserInput): string {
     let result: string[] = [];
     result.push(
-        "<b>Username:</b> <pre>" + data.username + "</pre>",
-        "<b>Timezone:</b> <pre>" + timezoneFormat(data.timezone) + "</pre>",
+        "<u>Username:</u> <code>" + data.username + "</code><br />",
+        "<u>Timezone:</u> <code>" +
+            timezoneFormat(data.timezone) +
+            "</code><br/>",
     );
 
     days.forEach((day) => {
         let times: string[] = data.times[day];
-        let line: string[] = ["<b>" + day + ":</b> "];
+        let line: string[] = ["<u>" + day + ":</u> "];
         let start = times[0];
         let end = times[1];
         if (start == "" && end == "") {
-            line.push("<pre> / </pre>");
+            line.push("<code> / </code><br />");
         } else {
-            let s = start == "" ? "UNDEFINED" : start;
-            let e = end == "" ? "UNDEFINED" : end;
+            let spanUndefined: string =
+                "<span style='color:red;'>UNDEFINED</span>";
+            let s = start == "" ? spanUndefined : start;
+            let e = end == "" ? spanUndefined : end;
 
             line.push(
-                "<pre>" +
+                "<code>" +
                     s +
                     " - " +
                     e +
                     " " +
                     timezoneFormat(data.timezone) +
-                    "</pre>",
+                    "</code>" +
+                    "<br />",
             );
         }
         result.push(line.join(""));

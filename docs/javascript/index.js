@@ -13,12 +13,6 @@ const idPrefixDay = "id-day-";
 const idTimeZone = "id-timezone";
 const idValidateSection = "section-validate";
 const idValidateZone = "id-validate-zone";
-function idDay(str) {
-    return idPrefixDay + str;
-}
-function idDayAvailable(str) {
-    return idPrefixDay + str + "-available";
-}
 function idDayStart(str) {
     return idPrefixDay + str + "-time-start";
 }
@@ -94,25 +88,29 @@ function timezoneFormat(offset) {
 }
 function stringifyInput(data) {
     let result = [];
-    result.push("<b>Username:</b> <pre>" + data.username + "</pre>", "<b>Timezone:</b> <pre>" + timezoneFormat(data.timezone) + "</pre>");
+    result.push("<u>Username:</u> <code>" + data.username + "</code><br />", "<u>Timezone:</u> <code>" +
+        timezoneFormat(data.timezone) +
+        "</code><br/>");
     days.forEach((day) => {
         let times = data.times[day];
-        let line = ["<b>" + day + ":</b> "];
+        let line = ["<u>" + day + ":</u> "];
         let start = times[0];
         let end = times[1];
         if (start == "" && end == "") {
-            line.push("<pre> / </pre>");
+            line.push("<code> / </code><br />");
         }
         else {
-            let s = start == "" ? "UNDEFINED" : start;
-            let e = end == "" ? "UNDEFINED" : end;
-            line.push("<pre>" +
+            let spanUndefined = "<span style='color:red;'>UNDEFINED</span>";
+            let s = start == "" ? spanUndefined : start;
+            let e = end == "" ? spanUndefined : end;
+            line.push("<code>" +
                 s +
                 " - " +
                 e +
                 " " +
                 timezoneFormat(data.timezone) +
-                "</pre>");
+                "</code>" +
+                "<br />");
         }
         result.push(line.join(""));
     });

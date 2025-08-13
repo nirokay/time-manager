@@ -30,18 +30,18 @@ proc fail(message: string): Result[UserInput] = Result[UserInput](
 )
 
 proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for good error messages...
-    if not json.fields.hasKey("username"): return fail("Field <pre>username</pre> does not exist.")
-    if not json.fields.hasKey("timezone"): return fail("Field <pre>timezone</pre> does not exist.")
-    if not json.fields.hasKey("times"): return fail("Field <pre>times</pre> does not exist.")
+    if not json.fields.hasKey("username"): return fail("Field <code>username</code> does not exist.")
+    if not json.fields.hasKey("timezone"): return fail("Field <code>timezone</code> does not exist.")
+    if not json.fields.hasKey("times"): return fail("Field <code>times</code> does not exist.")
 
     let
         rawUsername: JsonNode = json.fields["username"]
         rawTimezone: JsonNode = json.fields["timezone"]
         rawTimes: JsonNode = json.fields["times"]
 
-    if rawUsername.kind != JString: return fail("Field <pre>username</pre> is not of type <pre>string</pre>.")
-    if rawTimezone.kind != JInt: return fail("Field <pre>timezone</pre> is not of type <pre>int</pre>.")
-    if rawTimes.kind != JObject: return fail("Field <pre>times</pre> is not of type <pre>object</pre>.")
+    if rawUsername.kind != JString: return fail("Field <code>username</code> is not of type <code>string</code>.")
+    if rawTimezone.kind != JInt: return fail("Field <code>timezone</code> is not of type <code>int</code>.")
+    if rawTimes.kind != JObject: return fail("Field <code>times</code> is not of type <code>object</code>.")
 
     let
         username: string = rawUsername.str
@@ -57,24 +57,24 @@ proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for g
         if not timesFields.hasKey(day): return fail(&"Missing data for day {day}.") # should not happen with normal usage
 
         let node: JsonNode = timesFields[day]
-        if node.kind != JArray: return fail(&"Malformed data for day {day}, is not of type <pre>array</pre>.")
+        if node.kind != JArray: return fail(&"Malformed data for day {day}, is not of type <code>array</code>.")
 
         let list: seq[JsonNode] = node.elems
         if list.len() != 2: return fail(&"Malformed data for day {day}, array has a length of {list.len()} instead of 2.")
 
         for index, value in list:
-            if value.kind != JString: return fail(&"Index {index} in list for day {day} is not of type <pre>string</pre>.")
+            if value.kind != JString: return fail(&"Index {index} in list for day {day} is not of type <code>string</code>.")
 
         let
             timeStart: string = list[0].str
             timeEnd: string = list[1].str
         if (timeStart == "" and timeEnd != "") or (timeStart != "" and timeEnd == ""):
-            return fail(&"Malformed data for day {day}, both array values must be either set or empty <pre>string</pre>s!")
+            return fail(&"Malformed data for day {day}, both array values must be either set or empty <code>string</code>s!")
 
         for i, time in [timeStart, timeEnd]:
             if time == "": continue
             if not match(time, re"^\d?[0-2]\d?[0-9]:\d?[0-5]\d?[0-9]$"):
-                return fail(&"Malformed data for day {day} in index {i}, time <pre>{time}</pre> does not match regex.")
+                return fail(&"Malformed data for day {day} in index {i}, time <code>{time}</code> does not match regex.")
 
         userInput.times[dayEnum] = [timeStart, timeEnd]
 

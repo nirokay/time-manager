@@ -107,11 +107,11 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
             p(html"Malformed payload."),
             p(
                 html"Decoded from URI:",
-                if decodedUri == "": i(html"empty") else: pre(html decodedUri)
+                if decodedUri == "": i(html"empty") else: code(html decodedUri)
             ),
             p(
                 html"Decoded from Base64:",
-                if decoded == "": i(html"empty") else: pre(html decoded)
+                if decoded == "": i(html"empty") else: code(html decoded)
             )
         )
     )
@@ -125,7 +125,8 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
                 html parseResult.message,
                 br(),
                 html"Parsed JSON:",
-                pre(html decoded)
+                br(),
+                code(html decoded)
             )
         )
     )
