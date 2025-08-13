@@ -60,12 +60,7 @@ proc day(name: string): HtmlElement =
     ).setClass(classDayDiv.selector)
 
 proc getHtmlIndex(): HtmlDocument =
-    result = newHtmlDocument("index.html")
-    result.embedJS("index")
-    result.addToHead(
-        title(html"Time Manager"),
-        style(html stylesheet)
-    )
+    result = newPage("index.html", "TimeManager", "TimeManager lets you coordinate free-times without worrying too much about timezones.")
     result.add(
         h1(html"Time Manager"),
         h2(html"Personal details and Timezone"),
@@ -96,11 +91,7 @@ proc getHtmlIndex(): HtmlDocument =
     )
 
 proc getHtml404(): HtmlDocument =
-    result = newHtmlDocument("404.html")
-    result.addToHead(
-        title(html"404 - Time Manager"),
-        style(html stylesheet)
-    )
+    result = newPage("404.html", "404 - TimeManager", "404 - Not found")
     result.add(
         h1(html"404: Not found"),
         p(
@@ -111,12 +102,8 @@ proc getHtml404(): HtmlDocument =
     )
 
 proc getHtmlSuccess(): HtmlDocument =
-    result = newHtmlDocument("success.html")
+    result = newPage("success.html", "Success - TimeManager", "Your submission has been processed successfully!")
     result.embedJS("success")
-    result.addToHead(
-        title(html"Success - Time Manager"),
-        style(html stylesheet)
-    )
     result.add(
         h1(html"Request successful!"),
         p(
@@ -133,11 +120,7 @@ proc getHtmlFailure(reason: varargs[HtmlElement]): HtmlDocument =
         if r.len() == 0: @[p(html"Unspecified error.")]
         else: r
 
-    result = newHtmlDocument("failure.html")
-    result.addToHead(
-        title(html"Failure - Time Manager"),
-        style(html stylesheet)
-    )
+    result = newPage("failure.html", "Failure - TimeManager", "Your submission has been rejected.")
     result.add(
         h1(html"Request failed!"),
         p(html"Your request has failed with reason:")
@@ -145,7 +128,7 @@ proc getHtmlFailure(reason: varargs[HtmlElement]): HtmlDocument =
     result.add(reasonElements)
 
 proc getHtmlException(error, message: string): HtmlDocument =
-    result = newHtmlDocument("exception.html")
+    result = newPage("exception.html", "Error - TimeManager", "A server error has occurred.")
     result.addToHead(
         title(html"500 - Time Manager"),
         style(html stylesheet)
@@ -161,7 +144,7 @@ proc getHtmlException(error, message: string): HtmlDocument =
     )
 
 proc getHtmlNotImplemented(): HtmlDocument =
-    result = newHtmlDocument("not-implemented.html")
+    result = newPage("not-implemented.html", "501 TimeManager", "This feature has not yet been implemented.")
     result.addToHead(
         title(html"501 - Time Manager"),
         style(html stylesheet)
