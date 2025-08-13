@@ -1,4 +1,5 @@
-import std/[asynchttpserver, strformat, tables, json, options, re]
+import std/[asynchttpserver, strutils, strformat, tables, json, options, re]
+import db_connector/db_sqlite
 type
     ServerResponse* = object
         code*: HttpCode
@@ -14,6 +15,7 @@ type
         Sunday
 
     UserInput* = object
+        timestamp*: int
         username*: string
         timezone*: int
         times*: OrderedTable[Days, array[2, string]]
@@ -94,3 +96,24 @@ proc parseUserInput*(payload: string): Result[UserInput] =
         result = json.parseUserInput()
     except CatchableError as e:
         return fail(&"Internal error: {e.name} ({e.msg})")
+
+proc toUserInput*(row: Row): UserInput =
+    ## Converts `Row` to `UserInput`
+    proc toArray(str: string): array[2, string] =
+        if str == "": return ["", ""]
+        let parts: seq[string] = str.split(":")
+        if parts.len() != 2: return ["", ""] # should not happen
+        return [parts[0], parts[1]]
+    proc tryParse(str: string): int =
+        try: result = str.parseInt()
+        except CatchableError: result = 0
+
+    result = UserInput(
+        timestamp: row[0].tryParse(),
+        username: row[1],
+        timezone: row[2].tryParse()
+    )
+    var dayCounter: int = 0
+    for day in Days:
+        result.times[day] = row[3 + dayCounter].toArray()
+        inc dayCounter
