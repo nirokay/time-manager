@@ -149,7 +149,7 @@ proc handlePayloadSubmission*(payload: string): ServerResponse =
         content: htmlPageSuccess
     )
 
-proc getSubmissionTableFromDatabase(): Table[string, UserInput] =
+proc getSubmissionTableFromDatabase*(): Table[string, UserInput] =
     var rows: seq[Row]
     withDatabase db:
         rows = db.getAllRows(sql"SELECT * FROM inputs;")
@@ -161,7 +161,7 @@ proc getSubmissionTableFromDatabase(): Table[string, UserInput] =
         if result.hasKey(input.username):
             if result[input.username].timestamp > input.timestamp: continue
         result[input.username] = input
-proc getSubmissionListFromDatabase(): seq[UserInput] =
+proc getSubmissionListFromDatabase*(): seq[UserInput] =
     let data: Table[string, UserInput] = getSubmissionTableFromDatabase()
     for _, input in data:
         result.add input

@@ -1,5 +1,5 @@
 import std/[asynchttpserver, asyncdispatch, strutils]
-import typedefs, htmlstuff, database
+import typedefs, htmlstuff, resultpage, database
 
 const port* {.intdefine.} = 42069
 
@@ -28,7 +28,7 @@ proc handleRequest(request: Request) {.async, gcsafe.} =
                 # Results page:
                 ServerResponse(
                     code: Http501,
-                    content: htmlPageNotImplemented
+                    content: htmlPageResults()
                 )
             elif page in ["submit"]:
                 # Submit:

@@ -30,6 +30,12 @@ const
         margin := 20'px,
         padding := 10'px
     )
+
+    classTableHeaderRow*: CssElement = newCssClass("table-header-row",
+        propRounded,
+        backgroundColor := colBackgroundLight
+    )
+
     classCenterText*: CssElement = newCssClass("centered-text",
         textAlign := "center"
     )
@@ -89,12 +95,18 @@ proc getStyles(): CssStylesheet =
             backgroundColor := colBackgroundMiddle,
             textDecoration := "underline"
         },
+        "table"{
+            dropShadow,
+            propRounded,
+            backgroundColor := colBackgroundMiddle
+        },
 
         newCssId(idValidateSection,
             display := CssDisplayBox.none
         ),
 
         classDayDiv,
+        classTableHeaderRow,
         classCenterText
     )
 

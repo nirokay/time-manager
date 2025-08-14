@@ -1,30 +1,6 @@
 import std/[os, strformat, sequtils]
 import cattag
-import cssstuff
-
-proc newPage(fileName, tabTitle, description: string): HtmlDocument =
-    let desc: string = "TimeManager lets you submit the time-frame when you are free."
-    result = newHtmlDocument(fileName)
-    result.addToHead(
-        title(html tabTitle),
-        meta(@["property" <=> "og:title", "content" <=> tabTitle]),
-        meta(@["name" <=> "description", "content" <=> desc]),
-        meta(@["property" <=> "og:description", "content" <=> description]),
-        meta("utf-8"),
-        meta(@["content" <=> "width=device-width, initial-scale=1", "name" <=> "viewport"]),
-        style(html stylesheet),
-        link().add(
-            "href" <=> "https://www.nirokay.com/styles.css",
-            "rel" <=> "stylesheet"
-        )
-    )
-
-proc embedJS(document: var HtmlDocument, file: string) =
-    let
-        path: string = "docs" / "javascript" / file & ".js"
-        content: string = path.readFile()
-    document.addToHead(script(true, content))
-
+import typedefs, cssstuff
 
 # Successes and Failures: -----------------------------------------------------
 proc getHtml404(): HtmlDocument =
