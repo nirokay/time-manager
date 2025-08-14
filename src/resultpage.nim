@@ -1,11 +1,21 @@
-import std/[]
+import std/[strformat]
 import cattag
-import typedefs, database, cssstuff
+import typedefs, database, cssstuff, timezones
 
 proc getRowItemsFromInput(input: UserInput, day: Days): seq[HtmlElement] =
+    let
+        times: TimeList = input.normalizeTimes()
+        multiplicator: int = day.getDayMultiplicator()
     result.add td(html input.username)
     for hour in 0..23:
-        result.add td()
+        let alpha: float = block:
+            var r: float = times[(multiplicator * 7) + hour]
+            if r < 0: r = 0
+            if r > 1: r = 1
+            r
+        result.add td().setStyle(@[
+            backgroundColor := &"rgba(255, 255, 255, {alpha})"
+        ])
 
 
 proc getResultTimeTableDay(day: Days): HtmlElement =

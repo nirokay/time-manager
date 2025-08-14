@@ -21,6 +21,8 @@ type
         timezone*: int
         times*: OrderedTable[Days, array[2, string]]
 
+    TimeList* = array[7 * 24, float]
+
     Result*[T] = object
         error*: bool
         message*: string
