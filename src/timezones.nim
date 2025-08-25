@@ -1,6 +1,11 @@
 import std/[strutils, tables]
 import typedefs, database
 
+proc getUtcOffsetText*(offset: int): string =
+    result = "UTC"
+    if offset < 0: result.add $offset
+    else: result.add "+" & $offset
+
 proc getMinuteAlpha*(minutes: int): float =
     if minutes < 0: return 0
     result = float(minutes) / 60

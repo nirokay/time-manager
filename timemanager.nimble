@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.0"
+version       = "1.1.0"
 author        = "nirokay"
 description   = "A webserver to coordinate times when people are free."
 license       = "GPL-3.0-only"

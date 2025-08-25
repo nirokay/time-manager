@@ -2,20 +2,47 @@ import std/[strformat]
 import cattag
 import typedefs, database, cssstuff, timezones
 
-proc getRowItemsFromInput(input: UserInput, day: Days): seq[HtmlElement] =
+proc getOpacityFor(input: UserInput, day: Days, hour: int): float =
     let
         times: TimeList = input.normalizeTimes()
         multiplicator: int = day.getDayMultiplicator()
-    result.add td(html input.username)
+        index: int = getIndex(day, hour)
+    result = times[index]
+
+proc getRowItemsFromInput(input: UserInput, day: Days): seq[HtmlElement] =
+    # Username:
+    let utcTime: string = "(" & getUtcOffsetText(input.timezone) & ")"
+    result.add td(html &"{input.username} {small(i html utcTime)}")
+
+    # Times:
     for hour in 0..23:
-        let alpha: float = block:
-            var r: float = times[(multiplicator * 7) + hour]
-            if r < 0: r = 0
-            if r > 1: r = 1
-            r
-        result.add td().setStyle(@[
-            backgroundColor := &"rgba(255, 255, 255, {alpha})"
-        ])
+        let
+            alpha: float = block:
+                var r: float = input.getOpacityFor(day, hour)
+                if r < 0: r = 0
+                if r > 1: r = 1
+                r
+            minutes: string = block:
+                let
+                    f: float = alpha * 60
+                    i: int = int f
+                var s: string = $i
+                if s.len() != 2: s = "0" & s
+                if s == "00": s = ""
+                s
+        result.add td(html minutes).setStyle(
+            backgroundColor := &"rgba(254, 104, 179, {alpha})"
+        ).setClass(classTableCellWithValue.selector)
+
+        let
+            prev: float = input.getOpacityFor(day, hour - 1)
+            next: float = input.getOpacityFor(day, hour + 1)
+
+        if prev == 0 and next != 0: result[^1].setClass(classTableCellStarting.selector)
+        if next == 0 and prev != 0: result[^1].setClass(classTableCellEnding.selector)
+
+        if minutes != "":
+            result[^1].setTitle(&"{minutes} minutes")
 
 
 proc getResultTimeTableDay(day: Days): HtmlElement =
@@ -27,6 +54,8 @@ proc getResultTimeTableDay(day: Days): HtmlElement =
             if r.len() == 1: r = "0" & r
             r
         rowHeader.add th(html h).setClass(classTableHeaderRow.selector).addattr("title", &"{h}:00 - {h}:59 UTC")
+        if hour == 0: rowHeader[^1].setClass(classTableCellStarting.selector)
+        elif hour == 23: rowHeader[^1].setClass(classTableCellEnding.selector)
     result.add tr(rowHeader)
 
     for input in getSubmissionListFromDatabase():

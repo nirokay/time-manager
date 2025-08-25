@@ -32,8 +32,17 @@ const
     )
 
     classTableHeaderRow*: CssElement = newCssClass("table-header-row",
-        propRounded,
         backgroundColor := colBackgroundLight
+    )
+    classTableCellWithValue*: CssElement = newCssClass("table-cell-with-value",
+        textAlign := "center"
+    )
+
+    classTableCellStarting*: CssElement = newCssClass("table-cell-starting",
+        borderRadius := "20px 0px 0px 20px !important"
+    )
+    classTableCellEnding*: CssElement = newCssClass("table-cell-ending",
+        borderRadius := "0px 20px 20px 0px !important"
     )
 
     classCenterText*: CssElement = newCssClass("centered-text",
@@ -98,7 +107,8 @@ proc getStyles(): CssStylesheet =
         "table"{
             dropShadow,
             propRounded,
-            backgroundColor := colBackgroundMiddle
+            backgroundColor := colBackgroundMiddle,
+            borderCollapse := "collapse"
         },
 
         newCssId(idValidateSection,
@@ -107,6 +117,9 @@ proc getStyles(): CssStylesheet =
 
         classDayDiv,
         classTableHeaderRow,
+        classTableCellWithValue,
+        classTableCellStarting,
+        classTableCellEnding,
         classCenterText
     )
 
