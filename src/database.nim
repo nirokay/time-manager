@@ -155,6 +155,7 @@ proc getSubmissionTableFromDatabase*(): Table[string, UserInput] =
         rows = db.getAllRows(sql"SELECT * FROM inputs;")
     var data: seq[UserInput]
     for row in rows:
+        echo row
         data.add row.toUserInput()
 
     for input in data:

@@ -26,7 +26,7 @@ proc getResultTimeTableDay(day: Days): HtmlElement =
             var r: string = $hour
             if r.len() == 1: r = "0" & r
             r
-        rowHeader.add th(html h).setClass(classTableHeaderRow.selector)
+        rowHeader.add th(html h).setClass(classTableHeaderRow.selector).addattr("title", &"{h}:00 - {h}:59 UTC")
     result.add tr(rowHeader)
 
     for input in getSubmissionListFromDatabase():

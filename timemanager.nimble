@@ -22,4 +22,4 @@ task compilerun, "Compiles TS and Nim and runs the server":
 
 requires "nim >= 2.0.0"
 requires "db_connector"
-requires "https://github.com/nirokay/CatTag == 0.1.2"
+requires "https://github.com/nirokay/CatTag == 0.1.3"

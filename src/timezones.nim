@@ -3,20 +3,25 @@ import typedefs, database
 
 proc getMinuteAlpha*(minutes: int): float =
     if minutes < 0: return 0
-    result = float(minutes mod 60) / 60
+    result = float(minutes) / 60
+    if result > 1.0: result = 1.0
 proc getDayMultiplicator*(day: Days): int =
-    var counter: int
-    for d in Days:
-        if d == day: return counter
-        inc counter
+    result = case day:
+        of Monday: 0
+        of Tuesday: 1
+        of Wednesday: 2
+        of Thursday: 3
+        of Friday: 4
+        of Saturday: 5
+        of Sunday: 6
 proc getIndex*(day: Days, hour: int): int =
-    let multiplicator: int = day.getDayMultiplicator()
-    result = ((multiplicator * 24) + hour + 24*7) mod 24*7
-
+    let
+        multiplicator: int = day.getDayMultiplicator()
+        dayOffset: int = multiplicator * 24
+    result = (dayOffset + hour + 24*7) mod (24*7)
 
 proc normalizeTimes*(input: UserInput): TimeList =
     let offset: int = input.timezone
-    echo input.username, ": ", input.times
     for day in Days:
         let
             times = input.times[day]
@@ -48,14 +53,24 @@ proc normalizeTimes*(input: UserInput): TimeList =
         hourBegin -= offset
         hourEnding -= offset
 
-        if hourEnding > hourBegin: hourEnding += 24
+        if hourEnding > hourBegin:
+            hourEnding += 24
+        elif hourEnding == hourBegin:
+            if hourBegin >= hourEnding: hourEnding += 24
 
+        # i failed math classes, idk why it does some fuckery, anyways, this kinda fixes it:
+        hourEnding -= 24*7
+        while hourEnding < hourBegin: hourEnding += 24
+
+        echo input.username, " for day ", $day
         echo "Begin  ", hourBegin
         echo "Ending ", hourEnding
-        for hour in hourBegin..hourEnding:
+        echo "Range  ", hourEnding - hourBegin
+        for thisHour in hourBegin..hourEnding:
             let minutes: int = block:
-                if hour == hourBegin and hour == hourEnding: minuteEnding - minuteBegin
-                elif hour == hourBegin: 60 - minuteBegin
-                elif hour == hourEnding: minuteEnding
+                if thisHour == hourBegin and thisHour == hourEnding: minuteEnding - minuteBegin
+                elif thisHour == hourBegin: 60 - minuteBegin
+                elif thisHour == hourEnding: minuteEnding
                 else: 60
-            result[getIndex(day, hour)] = getMinuteAlpha(minutes)
+            result[getIndex(day, thisHour)] = getMinuteAlpha(minutes)
+            echo "Hour: ", thisHour, " Index: ", getIndex(day, thisHour), " Alpha: ", getMinuteAlpha(minutes)

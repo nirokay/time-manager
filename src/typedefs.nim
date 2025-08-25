@@ -104,7 +104,7 @@ proc toUserInput*(row: Row): UserInput =
     ## Converts `Row` to `UserInput`
     proc toArray(str: string): array[2, string] =
         if str == "": return ["", ""]
-        let parts: seq[string] = str.split(":")
+        let parts: seq[string] = str.split("-")
         if parts.len() != 2: return ["", ""] # should not happen
         return [parts[0], parts[1]]
     proc tryParse(str: string): int =
