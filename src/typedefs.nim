@@ -1,6 +1,12 @@
 import std/[asynchttpserver, strutils, strformat, tables, json, options, re, os]
 import cattag, db_connector/db_sqlite
 import cssstuff
+
+proc sanitize*(str: string): string =
+    ## Sanitizes HTML shenanigans
+    result = str
+    result = result.replace("<", "&lt;").replace(">", "&gt;")
+
 type
     ServerResponse* = object
         code*: HttpCode
@@ -49,7 +55,7 @@ proc parseUserInput*(json: JsonNode): Result[UserInput] = # what a mf does for g
     if rawTimes.kind != JObject: return fail("Field <code>times</code> is not of type <code>object</code>.")
 
     let
-        username: string = rawUsername.str
+        username: string = rawUsername.str.sanitize()
         timezone: int = rawTimezone.num
         timesFields: OrderedTable[string, JsonNode] = rawTimes.fields
     var userInput: UserInput = UserInput(

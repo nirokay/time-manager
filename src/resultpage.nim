@@ -11,8 +11,10 @@ proc getOpacityFor(input: UserInput, day: Days, hour: int): float =
 
 proc getRowItemsFromInput(input: UserInput, day: Days): seq[HtmlElement] =
     # Username:
-    let utcTime: string = "(" & getUtcOffsetText(input.timezone) & ")"
-    result.add td(html &"{input.username} {small(i html utcTime)}")
+    let
+        utcTime: string = "(" & getUtcOffsetText(input.timezone) & ")"
+        username = input.username.sanitize()
+    result.add td(html &"{username} {small(i html utcTime)}")
 
     # Times:
     for hour in 0..23:
@@ -72,7 +74,12 @@ proc getResultTimeTable*(): seq[HtmlElement] =
 proc getHtmlResults(): HtmlDocument =
     result = newPage("results.html", "Results - TimeManager", "See results for user submissions.")
     result.add(
-        h1(html"Results"),
+        h1(html"TimeManager"),
+        p(
+            a("/", "Click here"),
+            html"to return to the main page!"
+        ),
+        h2(html"Results"),
         p(
             html"All users submissions are visualized and split by day."
         )
