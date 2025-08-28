@@ -105,7 +105,7 @@ proc day(name: string): HtmlElement =
                 input(@["type" <=> "time", "id" <=> idEnd]),
             )
         )
-    ).setClass(classDayDiv.selector)
+    ).setClass(classDayDiv)
 
 proc getHtmlIndex(): HtmlDocument =
     result = newPage("index.html", "TimeManager", "TimeManager lets you coordinate free-times without worrying too much about timezones.")
@@ -118,7 +118,7 @@ proc getHtmlIndex(): HtmlDocument =
             html"If you are here to submit your data,",
             a("#new-submission", &"scroll down to <q>New submission</q> or click on this hyperlink"),
             html"!"
-        ).setClass(classCenterText.selector)
+        ).setClass(classCenterText)
     )
 
     # Navigate to results:
@@ -127,7 +127,7 @@ proc getHtmlIndex(): HtmlDocument =
         p(
             a("/results", "Click here"),
             html"to look at results!"
-        ).setClass(classCenterText.selector)
+        ).setClass(classCenterText)
     )
 
     # New submission:
@@ -143,7 +143,7 @@ proc getHtmlIndex(): HtmlDocument =
                 label(@["for" <=> idTimezone], html"Your timezone (UTC offset):"),
                 input(@["type" <=> "number", "id" <=> idTimezone, "placeholder" <=> "+2"])
             )
-        ).setClass(classDayDiv.selector)
+        ).setClass(classDayDiv)
     )
 
     result.add h3(html"Days")
@@ -155,7 +155,7 @@ proc getHtmlIndex(): HtmlDocument =
     result.add(
         section(
             h3(html"Validate your inputs"),
-            `div`(html"none").setClass(classDayDiv.selector).setId(idValidateZone).setStyle(@[lineHeight := 2'em]),
+            `div`(html"none").setClass(classDayDiv).setId(idValidateZone).setStyle(@[lineHeight := 2'em]),
             p(
                 html"If you see <q>UNDEFINED</q> somewhere in one of the time sections, your submission will be rejected.",
                 br(),

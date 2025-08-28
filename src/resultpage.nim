@@ -34,14 +34,14 @@ proc getRowItemsFromInput(input: UserInput, day: Days): seq[HtmlElement] =
                 s
         result.add td(html minutes).setStyle(
             backgroundColor := &"rgba(254, 104, 179, {alpha})"
-        ).setClass(classTableCellWithValue.selector)
+        ).setClass(classTableCellWithValue)
 
         let
             prev: float = input.getOpacityFor(day, hour - 1)
             next: float = input.getOpacityFor(day, hour + 1)
 
-        if prev == 0 and next != 0: result[^1].setClass(classTableCellStarting.selector)
-        if next == 0 and prev != 0: result[^1].setClass(classTableCellEnding.selector)
+        if prev == 0 and next != 0: result[^1].setClass(classTableCellStarting)
+        if next == 0 and prev != 0: result[^1].setClass(classTableCellEnding)
 
         if minutes != "":
             result[^1].setTitle(&"{minutes} minutes")
@@ -55,9 +55,9 @@ proc getResultTimeTableDay(day: Days): HtmlElement =
             var r: string = $hour
             if r.len() == 1: r = "0" & r
             r
-        rowHeader.add th(html h).setClass(classTableHeaderRow.selector).addattr("title", &"{h}:00 - {h}:59 UTC")
-        if hour == 0: rowHeader[^1].setClass(classTableCellStarting.selector)
-        elif hour == 23: rowHeader[^1].setClass(classTableCellEnding.selector)
+        rowHeader.add th(html h).setClass(classTableHeaderRow).addattr("title", &"{h}:00 - {h}:59 UTC")
+        if hour == 0: rowHeader[^1].setClass(classTableCellStarting)
+        elif hour == 23: rowHeader[^1].setClass(classTableCellEnding)
     result.add tr(rowHeader)
 
     for input in getSubmissionListFromDatabase():
